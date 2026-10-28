@@ -1,0 +1,16 @@
+The Marylebone Clinic - Interactive Walkthrough
+
+Live link:
+https://tejasmkh.github.io/marylebone-walkthrough/
+
+Embed code (paste into an "Embed" / "Custom HTML" block on any page):
+<iframe src="https://tejasmkh.github.io/marylebone-walkthrough/" style="width:100%; height:820px; border:0;" allowfullscreen></iframe>
+
+Direct links:
+  Medical Clinic tour   https://tejasmkh.github.io/marylebone-walkthrough/#medical
+  Cosmetic Clinic tour  https://tejasmkh.github.io/marylebone-walkthrough/#cosmetic
+  Photo gallery         https://tejasmkh.github.io/marylebone-walkthrough/#gallery
+  A specific room       add the room number, e.g. #medical-4 (Waiting Lounge)
+
+If you host the website yourself, replace the address above with your own
+(for example https://yourclinic.com/tour/). Full details are in the Handoff Guide.

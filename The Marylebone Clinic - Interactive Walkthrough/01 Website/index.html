@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Marylebone Clinic — Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.js"></script>
+<style>
+:root { --bg:#0f1012; --panel:#17181b; --line:#26282c; --text:#f2f1ee; --muted:#9a9a96; --accent:#e8dcc6; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { background:var(--bg); color:var(--text); font-family:Montserrat, "Avenir Next", Helvetica, sans-serif; }
+header { position:relative; padding:28px 32px 16px; display:flex; align-items:center; gap:28px; flex-wrap:wrap; }
+header h1 { font-size:20px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; }
+.tabs { display:flex; gap:8px; flex-wrap:wrap; }
+.tab { background:none; border:1px solid var(--line); color:var(--muted); padding:10px 18px; border-radius:3px; cursor:pointer;
+       font:500 11px Montserrat, sans-serif; letter-spacing:.22em; text-transform:uppercase; }
+.tab:hover { color:var(--text); border-color:#3a3c41; }
+.tab.on { color:#111; background:var(--accent); border-color:var(--accent); }
+.music { margin-left:auto; display:flex; align-items:center; gap:10px; background:none; border:1px solid var(--line); color:var(--muted);
+       padding:9px 15px 9px 13px; border-radius:40px; cursor:pointer; font:500 11px Montserrat, sans-serif; letter-spacing:.2em; text-transform:uppercase; }
+.music:hover { color:var(--text); border-color:#3a3c41; }
+.music.on { color:var(--accent); border-color:#5a554b; }
+.eq { display:flex; align-items:flex-end; gap:2px; height:12px; }
+.eq i { width:2px; height:3px; background:currentColor; border-radius:1px; }
+.music.on .eq i { animation:eq 1.2s ease-in-out infinite; }
+.music.on .eq i:nth-child(2) { animation-delay:-.4s; } .music.on .eq i:nth-child(3) { animation-delay:-.8s; } .music.on .eq i:nth-child(4) { animation-delay:-.2s; }
+@keyframes eq { 0%, 100% { height:3px; } 50% { height:12px; } }
+main { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:24px; padding:0 32px 32px; }
+.stage { min-width:0; }
+.frame { position:relative; background:#000; border-radius:6px; overflow:hidden; aspect-ratio:16/9; }
+video { width:100%; height:100%; display:block; background:#000; }
+.now { position:absolute; left:20px; top:18px; padding:8px 14px; background:rgba(10,10,12,.55); backdrop-filter:blur(6px);
+       border-radius:3px; font-size:11px; letter-spacing:.22em; text-transform:uppercase; opacity:0; transition:opacity .4s; pointer-events:none; }
+.now.show { opacity:1; }
+.now b { font-weight:700; color:var(--accent); margin-right:8px; }
+.bar { position:relative; height:34px; margin-top:14px; cursor:pointer; }
+.track { position:absolute; left:0; right:0; top:15px; height:4px; background:var(--line); border-radius:2px; }
+.fill { position:absolute; left:0; top:15px; height:4px; background:var(--accent); border-radius:2px; width:0; }
+.tick { position:absolute; top:9px; width:2px; height:16px; background:#4a4c52; }
+.tick:hover::after { content:attr(data-label); position:absolute; bottom:22px; left:50%; transform:translateX(-50%); white-space:nowrap;
+       background:var(--panel); border:1px solid var(--line); padding:5px 9px; font-size:11px; letter-spacing:.08em; border-radius:3px; }
+.controls { display:flex; gap:10px; align-items:center; margin-top:6px; font-size:12px; color:var(--muted); letter-spacing:.08em; flex-wrap:wrap; }
+.controls button { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:3px; padding:9px 14px;
+       font:500 11px Montserrat, sans-serif; letter-spacing:.18em; text-transform:uppercase; cursor:pointer; }
+.controls button:hover { border-color:var(--accent); }
+.controls .time { margin-left:auto; font-variant-numeric:tabular-nums; }
+aside { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:6px; max-height:calc(100vh - 120px); overflow:auto; }
+.wing { padding:18px 18px 8px; font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--accent); position:sticky; top:0; background:var(--panel); z-index:1; }
+.room { display:grid; grid-template-columns:112px 1fr; gap:14px; align-items:center; width:100%; padding:10px 18px; background:none; border:0;
+       border-left:3px solid transparent; color:inherit; text-align:left; cursor:pointer; font-family:inherit; }
+.room:hover { background:#1d1f23; }
+.room.on { background:#202226; border-left-color:var(--accent); }
+.room img { width:112px; aspect-ratio:16/9; object-fit:cover; border-radius:3px; display:block; background:#000; }
+.room .n { font-size:11px; color:var(--muted); letter-spacing:.2em; }
+.room .t { font-size:14px; font-weight:500; margin:3px 0 4px; line-height:1.25; }
+.room .d { font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.hint { padding:14px 18px 18px; font-size:11px; color:var(--muted); letter-spacing:.06em; line-height:1.6; border-top:1px solid var(--line); }
+.look { position:absolute; right:20px; bottom:64px; display:flex; align-items:center; gap:10px; padding:11px 16px 11px 12px;
+       background:rgba(232,220,198,.95); color:#141414; border:0; border-radius:40px; cursor:pointer; font:700 11px Montserrat, sans-serif;
+       letter-spacing:.18em; text-transform:uppercase; box-shadow:0 6px 24px rgba(0,0,0,.35); opacity:0; transform:translateY(8px);
+       transition:opacity .35s, transform .35s; pointer-events:none; }
+.look.show { opacity:1; transform:none; pointer-events:auto; }
+.look:hover { background:#fff; }
+.look svg, .badge svg { width:18px; height:18px; flex:none; }
+.badge { display:inline-flex; align-items:center; gap:6px; margin-top:6px; padding:5px 9px; border:1px solid #3a3c41; border-radius:20px;
+       color:var(--accent); font-size:10px; letter-spacing:.16em; text-transform:uppercase; }
+.badge:hover { border-color:var(--accent); }
+.badge svg { width:14px; height:14px; }
+#gallery { display:none; padding:6px 32px 40px; }
+body.gal main { display:none; }
+body.gal #gallery { display:block; }
+.gintro { font-size:12px; color:var(--muted); letter-spacing:.08em; line-height:1.6; margin-bottom:26px; }
+.gwing { display:flex; align-items:baseline; gap:18px; margin-bottom:14px; font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--accent); }
+.gwing a { margin-left:auto; color:var(--muted); font-size:10px; letter-spacing:.2em; text-decoration:none; }
+.gwing a:hover { color:var(--text); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); grid-auto-flow:dense; gap:14px; margin-bottom:38px; }
+.shot { position:relative; padding:0; border:0; background:#000; border-radius:6px; overflow:hidden; cursor:pointer; aspect-ratio:4/3;
+       color:inherit; font-family:inherit; text-align:left; }
+.shot.wide { grid-column:span 2; aspect-ratio:8/3; }
+.shot img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s ease; }
+.shot:hover img { transform:scale(1.04); }
+.shot .cap { position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; gap:10px; padding:34px 14px 12px;
+       background:linear-gradient(transparent, rgba(0,0,0,.72)); font-size:13px; font-weight:500; }
+.shot .cap b { color:var(--accent); font-size:11px; letter-spacing:.2em; }
+.shot .cap svg { width:18px; height:18px; margin-left:auto; color:var(--accent); flex:none; opacity:.85; }
+#pano { position:fixed; inset:0; background:var(--bg); z-index:50; display:none; flex-direction:column; }
+#pano.open { display:flex; }
+.ph { display:flex; align-items:center; gap:16px; padding:18px 24px; }
+.ph .ttl { font-size:13px; letter-spacing:.24em; text-transform:uppercase; }
+.ph .ttl b { color:var(--accent); margin-right:10px; }
+.ph .ttl small { color:var(--muted); font-size:10px; letter-spacing:.24em; margin-right:12px; }
+.ph .sub { font-size:11px; color:var(--muted); letter-spacing:.12em; margin-top:4px; }
+.ph .x { margin-left:auto; background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:3px; padding:10px 16px;
+       font:500 11px Montserrat, sans-serif; letter-spacing:.2em; text-transform:uppercase; cursor:pointer; flex:none; }
+.ph .x:hover { border-color:var(--accent); }
+#pv { flex:1; width:auto; height:auto; min-height:0; margin:0 24px; border-radius:6px; overflow:hidden; background:#000; position:relative; }
+#pv.flat { overflow:auto; cursor:grab; }
+#pv.flat img { height:140%; display:block; }
+.strip { display:flex; gap:10px; padding:14px 24px 22px; overflow-x:auto; }
+.strip:empty { padding:0 0 24px; }
+.strip button { padding:0; border:2px solid transparent; border-radius:4px; background:none; cursor:pointer; flex:none; opacity:.6; }
+.strip button.on { border-color:var(--accent); opacity:1; }
+.strip img { height:64px; display:block; border-radius:2px; }
+@media (max-width: 900px) {
+  .look { right:10px; top:10px; bottom:auto; padding:8px 12px 8px 9px; font-size:10px; }
+  .now { top:auto; bottom:62px; left:12px; }
+  .ph { padding:14px 16px; } #pv { margin:0 12px; } .strip { padding:12px 12px 16px; }
+  header { padding:20px 16px 12px; gap:14px; }
+  header h1 { font-size:17px; max-width:calc(100% - 120px); }
+  .tabs { gap:6px; } .tab { padding:9px 8px; font-size:10px; letter-spacing:.08em; }
+  .music { position:absolute; right:16px; top:20px; padding:8px 12px 8px 11px; font-size:10px; letter-spacing:.14em; }
+  main { grid-template-columns:1fr; padding:0 16px 24px; }
+  aside { max-height:none; display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity; padding:6px; }
+  .wing, .hint { display:none; }
+  .room { grid-template-columns:1fr; gap:8px; flex:none; width:176px; padding:8px; align-items:start; border-left:0; border-bottom:3px solid transparent; scroll-snap-align:start; }
+  .room.on { border-bottom-color:var(--accent); }
+  .room img { width:100%; }
+  .room .t { font-size:13px; }
+  .badge { white-space:nowrap; font-size:9px; letter-spacing:.1em; padding:4px 8px; }
+  #gallery { padding:4px 16px 32px; }
+  .grid { grid-template-columns:repeat(2, 1fr); gap:10px; }
+  .shot .cap { font-size:11px; padding:26px 9px 9px; gap:6px; }
+  .shot .cap b { font-size:10px; letter-spacing:.12em; }
+  .gwing .lw, .ph .sub { display:none; }
+  .ph .x { padding:9px 12px; font-size:10px; letter-spacing:.14em; }
+  .ph .ttl { font-size:12px; letter-spacing:.16em; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>The Marylebone Clinic</h1><nav class="tabs" id="tabs"></nav>
+  <button class="music" id="music" aria-pressed="false" title="Background music"><span class="eq"><i></i><i></i><i></i><i></i></span><span>Music</span></button>
+</header>
+<main>
+  <section class="stage">
+    <div class="frame">
+      <video id="v" preload="metadata" playsinline controls></video>
+      <div class="now" id="now"></div>
+      <button class="look" id="look"></button>
+    </div>
+    <div class="bar" id="bar"><div class="track"></div><div class="fill" id="fill"></div></div>
+    <div class="controls">
+      <button id="prev">&larr; Prev room</button>
+      <button id="play">Play</button>
+      <button id="next">Next room &rarr;</button>
+      <span class="time" id="time">0:00 / 0:00</span>
+    </div>
+  </section>
+  <aside id="list"></aside>
+</main>
+<section id="gallery"></section>
+<div id="pano" role="dialog" aria-modal="true">
+  <div class="ph"><div><div class="ttl" id="pttl"></div><div class="sub">Drag to look around · scroll or pinch to zoom</div></div><button class="x" id="px">Back</button></div>
+  <div id="pv"></div>
+  <div class="strip" id="pstrip"></div>
+</div>
+<script>
+const TOURS = [{"key": "medical", "label": "Medical Clinic", "src": "video/Medical%20Clinic.mp4", "poster": "thumbs/medical-poster.jpg", "total": 240.26, "rooms": [{"n": "01", "title": "Arrival", "t": 0, "end": 29, "thumb": "thumbs/medical-01.jpg", "panos": []}, {"n": "02", "title": "Reception", "t": 29, "end": 52, "thumb": "thumbs/medical-02.jpg", "panos": []}, {"n": "03", "title": "Workstations", "t": 52, "end": 62, "thumb": "thumbs/medical-03.jpg", "panos": []}, {"n": "04", "title": "Waiting Lounge", "t": 62, "end": 90, "thumb": "thumbs/medical-04.jpg", "panos": [{"id": "0072", "src": "panos/0072.jpg", "thumb": "panos/0072_t.jpg", "haov": 120, "vaov": 120.8, "wide": false}, {"id": "0074", "src": "panos/0074.jpg", "thumb": "panos/0074_t.jpg", "haov": 120, "vaov": 120.2, "wide": false}]}, {"n": "05", "title": "Triage", "t": 90, "end": 108, "thumb": "thumbs/medical-05.jpg", "panos": []}, {"n": "06", "title": "Physician & Consult Rooms", "t": 108, "end": 126, "thumb": "thumbs/medical-06.jpg", "panos": [{"id": "0052", "src": "panos/0052.jpg", "thumb": "panos/0052_t.jpg", "haov": 120, "vaov": 121.0, "wide": false}]}, {"n": "07", "title": "Cardiology", "t": 126, "end": 144, "thumb": "thumbs/medical-07.jpg", "panos": []}, {"n": "08", "title": "Physician Rooms", "t": 144, "end": 186, "thumb": "thumbs/medical-08.jpg", "panos": [{"id": "0055", "src": "panos/0055.jpg", "thumb": "panos/0055_t.jpg", "haov": 120, "vaov": 120.7, "wide": false}]}, {"n": "09", "title": "Physiotherapy", "t": 186, "end": 218, "thumb": "thumbs/medical-09.jpg", "panos": [{"id": "0058", "src": "panos/0058.jpg", "thumb": "panos/0058_t.jpg", "haov": 120, "vaov": 119.5, "wide": false}, {"id": "0063", "src": "panos/0063.jpg", "thumb": "panos/0063_t.jpg", "haov": 120, "vaov": 120.9, "wide": false}]}, {"n": "10", "title": "Fitness & Rehab", "t": 218, "end": 240.26, "thumb": "thumbs/medical-10.jpg", "panos": [{"id": "0071", "src": "panos/0071.jpg", "thumb": "panos/0071_t.jpg", "haov": 120, "vaov": 120.9, "wide": false}]}]}, {"key": "cosmetic", "label": "Cosmetic Clinic", "src": "video/Cosmetic%20Clinic.mp4", "poster": "thumbs/cosmetic-poster.jpg", "total": 165.27, "rooms": [{"n": "01", "title": "Arrival", "t": 0, "end": 30, "thumb": "thumbs/cosmetic-01.jpg", "panos": []}, {"n": "02", "title": "Reception", "t": 30, "end": 36, "thumb": "thumbs/cosmetic-02.jpg", "panos": [{"id": "0083", "src": "panos/0083.jpg", "thumb": "panos/0083_t.jpg", "haov": 120, "vaov": 120.6, "wide": false}]}, {"n": "03", "title": "Lounge & Retail", "t": 36, "end": 68, "thumb": "thumbs/cosmetic-03.jpg", "panos": [{"id": "0084", "src": "panos/0084.jpg", "thumb": "panos/0084_t.jpg", "haov": 120, "vaov": 119.8, "wide": false}, {"id": "0086", "src": "panos/0086.jpg", "thumb": "panos/0086_t.jpg", "haov": 120, "vaov": 120.3, "wide": false}]}, {"n": "04", "title": "Treatment Rooms", "t": 68, "end": 131, "thumb": "thumbs/cosmetic-04.jpg", "panos": [{"id": "0094", "src": "panos/0094.jpg", "thumb": "panos/0094_t.jpg", "haov": 120, "vaov": 121.0, "wide": false}, {"id": "0096", "src": "panos/0096.jpg", "thumb": "panos/0096_t.jpg", "haov": 180, "vaov": 70.7, "wide": true}, {"id": "0101", "src": "panos/0101.jpg", "thumb": "panos/0101_t.jpg", "haov": 120, "vaov": 121.5, "wide": false}, {"id": "0105", "src": "panos/0105.jpg", "thumb": "panos/0105_t.jpg", "haov": 120, "vaov": 120.5, "wide": false}]}, {"n": "05", "title": "Laser & Device Suites", "t": 131, "end": 165.27, "thumb": "thumbs/cosmetic-05.jpg", "panos": [{"id": "0103", "src": "panos/0103.jpg", "thumb": "panos/0103_t.jpg", "haov": 120, "vaov": 120.2, "wide": false}]}]}];
+const $ = id => document.getElementById(id);
+const v = $('v'), list = $('list'), bar = $('bar'), fill = $('fill'), now = $('now'), time = $('time'), play = $('play'), tabs = $('tabs');
+const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+let T = null, buttons = [], last = -1, hideT, viewer = null, resume = false;
+const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>';
+const look = $('look'), pano = $('pano'), pv = $('pv'), gallery = $('gallery');
+const inGallery = () => document.body.classList.contains('gal');
+
+// ---- background music: Web Audio loop (the file carries 1 s of pre/post-roll so the loop point is seamless in every browser) ----
+const MUSIC = { src: 'audio/lounge.mp3', loop: [1, 156.676], vol: 0.42 };
+const mbtn = $('music');
+let actx = null, gain = null, msrc = null, mel = null, mbuf = null, playing = false, mtimer;
+const store = (k, val) => { try { if (val === undefined) return localStorage.getItem(k); localStorage.setItem(k, val); } catch (e) { return null; } };
+let wantMusic = store('mc-music') !== 'off';
+function setMusicUI() { mbtn.classList.toggle('on', playing); mbtn.setAttribute('aria-pressed', playing); mbtn.title = playing ? 'Turn music off' : 'Turn music on'; v.muted = playing; }
+function fadeTo(target, secs) {
+  if (gain) { const t = actx.currentTime; gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(gain.gain.value, t); gain.gain.linearRampToValueAtTime(target, t + secs); return; }
+  if (!mel) return;
+  clearInterval(mtimer); const from = mel.volume, steps = Math.max(1, secs * 20); let k = 0;
+  mtimer = setInterval(() => { k++; mel.volume = Math.max(0, Math.min(1, from + (target - from) * k / steps)); if (k >= steps) clearInterval(mtimer); }, 50);
+}
+function startMusic() {
+  playing = true; setMusicUI();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC && location.protocol !== 'file:') {
+    if (!actx) { actx = new AC(); gain = actx.createGain(); gain.gain.value = 0; gain.connect(actx.destination); }
+    actx.resume();                                    // must run inside the click/tap that started it
+    const go = () => {
+      if (!playing) return;
+      if (!msrc) { msrc = actx.createBufferSource(); msrc.buffer = mbuf; msrc.loop = true; [msrc.loopStart, msrc.loopEnd] = MUSIC.loop; msrc.connect(gain); msrc.start(0, MUSIC.loop[0]); }
+      fadeTo(MUSIC.vol, 2.5);
+    };
+    if (mbuf) go();
+    else fetch(MUSIC.src).then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => actx.decodeAudioData(a, ok, no))).then(b => { mbuf = b; go(); })
+      .catch(() => { gain = null; actx = null; startEl(); });
+  } else startEl();
+}
+function startEl() {
+  if (!mel) { mel = new Audio(MUSIC.src); mel.loop = true; mel.volume = 0; mel.currentTime = MUSIC.loop[0]; }
+  mel.play().then(() => fadeTo(MUSIC.vol, 2.5)).catch(() => { playing = false; setMusicUI(); });
+}
+function stopMusic(keepWish) {
+  playing = false; setMusicUI(); if (!keepWish) { wantMusic = false; store('mc-music', 'off'); }
+  fadeTo(0, 1.2);
+  clearTimeout(stopMusic.t); stopMusic.t = setTimeout(() => { if (playing) return; if (actx) actx.suspend(); if (mel) mel.pause(); }, 1300);
+}
+mbtn.onclick = () => { if (playing) stopMusic(); else { wantMusic = true; store('mc-music', 'on'); startMusic(); } };
+const firstTouch = e => {            // browsers only allow sound after the visitor interacts, so the music starts on their first click or key
+  if (e.target.closest && e.target.closest('#music')) return;
+  removeEventListener('click', firstTouch, true); removeEventListener('keydown', firstTouch, true);
+  if (wantMusic && !playing) startMusic();
+};
+addEventListener('click', firstTouch, true); addEventListener('keydown', firstTouch, true);
+let pausedByHide = false;                // fade out while the tab is in the background, back in on return
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (playing) { stopMusic(true); pausedByHide = true; } }
+  else if (pausedByHide) { pausedByHide = false; startMusic(); }
+});
+
+// ---- look-around viewer ----
+function openPano(room, j, label) {
+  if (!room.panos.length) return;
+  resume = resume || !v.paused; v.pause();
+  $('pttl').innerHTML = (label ? `<small>${label}</small>` : '') + `<b>${room.n}</b>${room.title}`;
+  $('px').textContent = inGallery() ? 'Back to gallery' : 'Back to walkthrough';
+  $('pstrip').innerHTML = room.panos.length > 1 ? room.panos.map((p, k) => `<button data-k="${k}"><img src="${p.thumb}" alt=""></button>`).join('') : '';
+  $('pstrip').querySelectorAll('button').forEach(b => b.onclick = () => show(room, +b.dataset.k));
+  pano.classList.add('open'); show(room, j || 0);
+}
+function show(room, j) {
+  const p = room.panos[j];
+  $('pstrip').querySelectorAll('button').forEach((b, k) => b.classList.toggle('on', k === j));
+  if (viewer) { viewer.destroy(); viewer = null; }
+  pv.innerHTML = ''; pv.className = '';
+  if (location.protocol === 'file:' || !window.pannellum) {   // local preview: browsers block WebGL textures from file:// -> plain drag-scroll image
+    pv.className = 'flat'; pv.innerHTML = `<img src="${p.src}" alt="">`;
+    let d = null; pv.onpointerdown = e => d = [e.clientX, e.clientY, pv.scrollLeft, pv.scrollTop];
+    pv.onpointermove = e => { if (d) { pv.scrollLeft = d[2] - (e.clientX - d[0]); pv.scrollTop = d[3] - (e.clientY - d[1]); } };
+    pv.onpointerup = pv.onpointerleave = () => d = null;
+    const img = pv.querySelector('img'); img.onload = () => { pv.scrollLeft = (img.width - pv.clientWidth) / 2; pv.scrollTop = (img.height - pv.clientHeight) / 2; };
+    return;
+  }
+  const fit = 2 * Math.atan(Math.tan(p.vaov * Math.PI / 360 * 0.92) * pv.clientWidth / pv.clientHeight) * 180 / Math.PI;  // tall phone screens: zoom in so the photo fills the height
+  viewer = pannellum.viewer(pv, { type: 'equirectangular', panorama: p.src, autoLoad: true, haov: p.haov, vaov: p.vaov,
+    hfov: Math.min(100, p.haov * 0.75, fit), minHfov: Math.min(35, fit), maxHfov: Math.min(110, p.haov, fit), showControls: true, showFullscreenCtrl: true,
+    compass: false, mouseZoom: true, autoRotate: p.wide ? -2 : 0, autoRotateInactivityDelay: 4000, friction: 0.15 });
+}
+function closePano() { pano.classList.remove('open'); if (viewer) { viewer.destroy(); viewer = null; } pv.innerHTML = ''; if (resume && !inGallery()) v.play().catch(() => {}); resume = false; }
+$('px').onclick = closePano;
+
+// ---- gallery ----
+gallery.innerHTML = '<p class="gintro">Panoramic views from inside the clinic. Select any photo to look around the room.</p>' + TOURS.map((tour, k) =>
+  `<div class="gwing">${tour.label}<a href="#${tour.key}">Watch<span class="lw"> the walkthrough</span> &rarr;</a></div><div class="grid">` +
+  tour.rooms.flatMap((room, i) => room.panos.map((p, j) =>
+    `<button class="shot${p.wide ? ' wide' : ''}" data-k="${k}" data-i="${i}" data-j="${j}"><img src="${p.src.replace('.jpg', '_m.jpg')}" alt="${room.title}" loading="lazy">` +
+    `<span class="cap"><b>${room.n}</b>${room.title}${EYE}</span></button>`)).join('') + '</div>').join('');
+gallery.querySelectorAll('.shot').forEach(b => b.onclick = () => openPano(TOURS[+b.dataset.k].rooms[+b.dataset.i], +b.dataset.j, TOURS[+b.dataset.k].label));
+function showGallery() {
+  v.pause(); document.body.classList.add('gal');
+  [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === TOURS.length));
+  history.replaceState(null, '', '#gallery');
+}
+
+// ---- walkthrough player ----
+const dur = () => (isFinite(v.duration) && v.duration > 0) ? v.duration : T.total;
+const cur = t => { let i = 0; T.rooms.forEach((c, j) => { if (t >= c.t - 0.05) i = j; }); return i; };
+TOURS.forEach((tour, k) => {
+  const b = document.createElement('button'); b.className = 'tab'; b.textContent = tour.label; b.onclick = () => load(k, 0, true); tabs.appendChild(b);
+});
+const gt = document.createElement('button'); gt.className = 'tab'; gt.textContent = 'Gallery'; gt.onclick = showGallery; tabs.appendChild(gt);
+function load(k, room, autoplay) {
+  document.body.classList.remove('gal');
+  if (T === TOURS[k]) { [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === k)); history.replaceState(null, '', '#' + T.key + (room ? '-' + (room + 1) : '')); go(room); return; }
+  T = TOURS[k]; last = -1;
+  [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === k));
+  v.poster = room ? '' : T.poster; v.src = T.src;  // deep link to a room: show that room's frame, not the exterior poster
+  list.innerHTML = ''; buttons = []; bar.querySelectorAll('.tick').forEach(e => e.remove());
+  const h = document.createElement('div'); h.className = 'wing'; h.textContent = T.label; list.appendChild(h);
+  T.rooms.forEach((c, i) => {
+    const b = document.createElement('button'); b.className = 'room';
+    b.innerHTML = `<img src="${c.thumb}" alt="" loading="lazy"><div><div class="n">${c.n}</div><div class="t">${c.title}</div><div class="d">${fmt(c.t)} · ${fmt(c.end - c.t)}</div>`
+      + (c.panos.length ? `<span class="badge">${EYE}Look around${c.panos.length > 1 ? ' · ' + c.panos.length : ''}</span>` : '') + `</div>`;
+    b.onclick = e => { if (e.target.closest('.badge')) { go(i); openPano(T.rooms[i]); } else go(i); }; list.appendChild(b); buttons.push(b);
+    const t = document.createElement('div'); t.className = 'tick'; t.style.left = (c.t / T.total * 100) + '%'; t.dataset.label = c.n + '  ' + c.title; bar.appendChild(t);
+  });
+  const n = TOURS[(k + 1) % TOURS.length];
+  const hint = document.createElement('div'); hint.className = 'hint';
+  hint.innerHTML = `Click a room to jump there. Rooms marked “Look around” have panoramic views — open them from the list or the button on the video. Keyboard: ← → previous / next room, space to play or pause.<br><br><a href="#" id="other" style="color:var(--accent)">Switch to the ${n.label} tour →</a>`;
+  list.appendChild(hint); $('other').onclick = e => { e.preventDefault(); load((k + 1) % TOURS.length, 0, true); };
+  v.addEventListener('loadedmetadata', () => { v.currentTime = T.rooms[room].t + 0.01; if (autoplay) v.play().catch(() => {}); update(); }, { once: true });
+  history.replaceState(null, '', '#' + T.key + (room ? '-' + (room + 1) : ''));  // replaceState fires no hashchange
+  update();
+}
+function go(i) { i = Math.max(0, Math.min(T.rooms.length - 1, i)); v.currentTime = T.rooms[i].t + 0.01; v.play().catch(() => {}); }
+function update() {
+  const t = v.currentTime || 0, i = cur(t);
+  fill.style.width = (t / dur() * 100) + '%'; time.textContent = fmt(t) + ' / ' + fmt(dur());
+  if (i !== last && buttons[i]) {
+    buttons.forEach((b, j) => b.classList.toggle('on', j === i));
+    if (getComputedStyle(list).display !== 'flex') { if (getComputedStyle(list).maxHeight !== 'none') buttons[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    else list.scrollTo({ left: buttons[i].offsetLeft - 6, behavior: 'smooth' });  // phones: slide the room strip, never scroll the page
+    now.innerHTML = `<b>${T.rooms[i].n}</b>${T.rooms[i].title}`; now.classList.add('show');
+    const np = T.rooms[i].panos.length; look.innerHTML = np ? `${EYE}Look around this room` + (np > 1 ? ` · ${np}` : '') : ''; look.classList.toggle('show', !!np);
+    look.onclick = () => openPano(T.rooms[i]);
+    clearTimeout(hideT); hideT = setTimeout(() => now.classList.remove('show'), 3500); last = i;
+  }
+}
+v.addEventListener('timeupdate', update); v.addEventListener('seeked', update);
+v.addEventListener('play', () => play.textContent = 'Pause'); v.addEventListener('pause', () => play.textContent = 'Play');
+play.onclick = () => v.paused ? v.play() : v.pause();
+const back = () => { const i = cur(v.currentTime); go(v.currentTime - T.rooms[i].t > 2 ? i : i - 1); };
+$('prev').onclick = back; $('next').onclick = () => go(cur(v.currentTime) + 1);
+bar.onclick = e => { const r = bar.getBoundingClientRect(); v.currentTime = (e.clientX - r.left) / r.width * dur(); };
+document.addEventListener('keydown', e => {
+  if (pano.classList.contains('open')) { if (e.key === 'Escape') closePano(); return; }
+  if (inGallery()) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); go(cur(v.currentTime) + 1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
+  else if (e.key === ' ' && e.target === document.body) { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+});
+function fromHash(autoplay) {
+  if (location.hash === '#gallery') { if (!T) load(0, 0, false); showGallery(); return; }
+  const m = location.hash.match(/^#(\w+)(?:-(\d+))?/), k = m ? Math.max(0, TOURS.findIndex(t => t.key === m[1])) : 0;
+  const r = m && m[2] ? Math.min(TOURS[k].rooms.length, +m[2]) - 1 : 0;
+  load(k, r, autoplay);
+}
+window.addEventListener('hashchange', () => fromHash(true));
+fromHash(false);
+setMusicUI();
+</script>
+</body>
+</html>
