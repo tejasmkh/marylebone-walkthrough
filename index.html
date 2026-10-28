@@ -12,13 +12,22 @@
 :root { --bg:#0f1012; --panel:#17181b; --line:#26282c; --text:#f2f1ee; --muted:#9a9a96; --accent:#e8dcc6; }
 * { box-sizing:border-box; margin:0; padding:0; }
 html, body { background:var(--bg); color:var(--text); font-family:Montserrat, "Avenir Next", Helvetica, sans-serif; }
-header { padding:28px 32px 16px; display:flex; align-items:center; gap:28px; flex-wrap:wrap; }
+header { position:relative; padding:28px 32px 16px; display:flex; align-items:center; gap:28px; flex-wrap:wrap; }
 header h1 { font-size:20px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; }
-.tabs { display:flex; gap:8px; }
+.tabs { display:flex; gap:8px; flex-wrap:wrap; }
 .tab { background:none; border:1px solid var(--line); color:var(--muted); padding:10px 18px; border-radius:3px; cursor:pointer;
        font:500 11px Montserrat, sans-serif; letter-spacing:.22em; text-transform:uppercase; }
 .tab:hover { color:var(--text); border-color:#3a3c41; }
 .tab.on { color:#111; background:var(--accent); border-color:var(--accent); }
+.music { margin-left:auto; display:flex; align-items:center; gap:10px; background:none; border:1px solid var(--line); color:var(--muted);
+       padding:9px 15px 9px 13px; border-radius:40px; cursor:pointer; font:500 11px Montserrat, sans-serif; letter-spacing:.2em; text-transform:uppercase; }
+.music:hover { color:var(--text); border-color:#3a3c41; }
+.music.on { color:var(--accent); border-color:#5a554b; }
+.eq { display:flex; align-items:flex-end; gap:2px; height:12px; }
+.eq i { width:2px; height:3px; background:currentColor; border-radius:1px; }
+.music.on .eq i { animation:eq 1.2s ease-in-out infinite; }
+.music.on .eq i:nth-child(2) { animation-delay:-.4s; } .music.on .eq i:nth-child(3) { animation-delay:-.8s; } .music.on .eq i:nth-child(4) { animation-delay:-.2s; }
+@keyframes eq { 0%, 100% { height:3px; } 50% { height:12px; } }
 main { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:24px; padding:0 32px 32px; }
 .stage { min-width:0; }
 .frame { position:relative; background:#000; border-radius:6px; overflow:hidden; aspect-ratio:16/9; }
@@ -38,7 +47,7 @@ video { width:100%; height:100%; display:block; background:#000; }
        font:500 11px Montserrat, sans-serif; letter-spacing:.18em; text-transform:uppercase; cursor:pointer; }
 .controls button:hover { border-color:var(--accent); }
 .controls .time { margin-left:auto; font-variant-numeric:tabular-nums; }
-aside { background:var(--panel); border:1px solid var(--line); border-radius:6px; max-height:calc(100vh - 120px); overflow:auto; }
+aside { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:6px; max-height:calc(100vh - 120px); overflow:auto; }
 .wing { padding:18px 18px 8px; font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--accent); position:sticky; top:0; background:var(--panel); z-index:1; }
 .room { display:grid; grid-template-columns:112px 1fr; gap:14px; align-items:center; width:100%; padding:10px 18px; background:none; border:0;
        border-left:3px solid transparent; color:inherit; text-align:left; cursor:pointer; font-family:inherit; }
@@ -60,35 +69,72 @@ aside { background:var(--panel); border:1px solid var(--line); border-radius:6px
        color:var(--accent); font-size:10px; letter-spacing:.16em; text-transform:uppercase; }
 .badge:hover { border-color:var(--accent); }
 .badge svg { width:14px; height:14px; }
-#pano { position:fixed; inset:0; background:rgba(8,8,10,.94); z-index:50; display:none; flex-direction:column; }
+#gallery { display:none; padding:6px 32px 40px; }
+body.gal main { display:none; }
+body.gal #gallery { display:block; }
+.gintro { font-size:12px; color:var(--muted); letter-spacing:.08em; line-height:1.6; margin-bottom:26px; }
+.gwing { display:flex; align-items:baseline; gap:18px; margin-bottom:14px; font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--accent); }
+.gwing a { margin-left:auto; color:var(--muted); font-size:10px; letter-spacing:.2em; text-decoration:none; }
+.gwing a:hover { color:var(--text); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); grid-auto-flow:dense; gap:14px; margin-bottom:38px; }
+.shot { position:relative; padding:0; border:0; background:#000; border-radius:6px; overflow:hidden; cursor:pointer; aspect-ratio:4/3;
+       color:inherit; font-family:inherit; text-align:left; }
+.shot.wide { grid-column:span 2; aspect-ratio:8/3; }
+.shot img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s ease; }
+.shot:hover img { transform:scale(1.04); }
+.shot .cap { position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; gap:10px; padding:34px 14px 12px;
+       background:linear-gradient(transparent, rgba(0,0,0,.72)); font-size:13px; font-weight:500; }
+.shot .cap b { color:var(--accent); font-size:11px; letter-spacing:.2em; }
+.shot .cap svg { width:18px; height:18px; margin-left:auto; color:var(--accent); flex:none; opacity:.85; }
+#pano { position:fixed; inset:0; background:var(--bg); z-index:50; display:none; flex-direction:column; }
 #pano.open { display:flex; }
 .ph { display:flex; align-items:center; gap:16px; padding:18px 24px; }
 .ph .ttl { font-size:13px; letter-spacing:.24em; text-transform:uppercase; }
 .ph .ttl b { color:var(--accent); margin-right:10px; }
-.ph .sub { font-size:11px; color:var(--muted); letter-spacing:.12em; }
+.ph .ttl small { color:var(--muted); font-size:10px; letter-spacing:.24em; margin-right:12px; }
+.ph .sub { font-size:11px; color:var(--muted); letter-spacing:.12em; margin-top:4px; }
 .ph .x { margin-left:auto; background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:3px; padding:10px 16px;
-       font:500 11px Montserrat, sans-serif; letter-spacing:.2em; text-transform:uppercase; cursor:pointer; }
+       font:500 11px Montserrat, sans-serif; letter-spacing:.2em; text-transform:uppercase; cursor:pointer; flex:none; }
 .ph .x:hover { border-color:var(--accent); }
-#pv { flex:1; margin:0 24px; border-radius:6px; overflow:hidden; background:#000; position:relative; }
+#pv { flex:1; width:auto; height:auto; min-height:0; margin:0 24px; border-radius:6px; overflow:hidden; background:#000; position:relative; }
 #pv.flat { overflow:auto; cursor:grab; }
 #pv.flat img { height:140%; display:block; }
 .strip { display:flex; gap:10px; padding:14px 24px 22px; overflow-x:auto; }
+.strip:empty { padding:0 0 24px; }
 .strip button { padding:0; border:2px solid transparent; border-radius:4px; background:none; cursor:pointer; flex:none; opacity:.6; }
 .strip button.on { border-color:var(--accent); opacity:1; }
 .strip img { height:64px; display:block; border-radius:2px; }
 @media (max-width: 900px) {
   .look { right:10px; top:10px; bottom:auto; padding:8px 12px 8px 9px; font-size:10px; }
   .now { top:auto; bottom:62px; left:12px; }
-  .badge { white-space:nowrap; }
   .ph { padding:14px 16px; } #pv { margin:0 12px; } .strip { padding:12px 12px 16px; }
   header { padding:20px 16px 12px; gap:14px; }
+  header h1 { font-size:17px; max-width:calc(100% - 120px); }
+  .tabs { gap:6px; } .tab { padding:9px 8px; font-size:10px; letter-spacing:.08em; }
+  .music { position:absolute; right:16px; top:20px; padding:8px 12px 8px 11px; font-size:10px; letter-spacing:.14em; }
   main { grid-template-columns:1fr; padding:0 16px 24px; }
-  aside { max-height:none; }
+  aside { max-height:none; display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity; padding:6px; }
+  .wing, .hint { display:none; }
+  .room { grid-template-columns:1fr; gap:8px; flex:none; width:176px; padding:8px; align-items:start; border-left:0; border-bottom:3px solid transparent; scroll-snap-align:start; }
+  .room.on { border-bottom-color:var(--accent); }
+  .room img { width:100%; }
+  .room .t { font-size:13px; }
+  .badge { white-space:nowrap; font-size:9px; letter-spacing:.1em; padding:4px 8px; }
+  #gallery { padding:4px 16px 32px; }
+  .grid { grid-template-columns:repeat(2, 1fr); gap:10px; }
+  .shot .cap { font-size:11px; padding:26px 9px 9px; gap:6px; }
+  .shot .cap b { font-size:10px; letter-spacing:.12em; }
+  .gwing .lw, .ph .sub { display:none; }
+  .ph .x { padding:9px 12px; font-size:10px; letter-spacing:.14em; }
+  .ph .ttl { font-size:12px; letter-spacing:.16em; }
 }
 </style>
 </head>
 <body>
-<header><h1>The Marylebone Clinic</h1><nav class="tabs" id="tabs"></nav></header>
+<header>
+  <h1>The Marylebone Clinic</h1><nav class="tabs" id="tabs"></nav>
+  <button class="music" id="music" aria-pressed="false" title="Background music"><span class="eq"><i></i><i></i><i></i><i></i></span><span>Music</span></button>
+</header>
 <main>
   <section class="stage">
     <div class="frame">
@@ -106,8 +152,9 @@ aside { background:var(--panel); border:1px solid var(--line); border-radius:6px
   </section>
   <aside id="list"></aside>
 </main>
+<section id="gallery"></section>
 <div id="pano" role="dialog" aria-modal="true">
-  <div class="ph"><div><div class="ttl" id="pttl"></div><div class="sub">Drag to look around · scroll or pinch to zoom</div></div><button class="x" id="px">Back to walkthrough</button></div>
+  <div class="ph"><div><div class="ttl" id="pttl"></div><div class="sub">Drag to look around · scroll or pinch to zoom</div></div><button class="x" id="px">Back</button></div>
   <div id="pv"></div>
   <div class="strip" id="pstrip"></div>
 </div>
@@ -118,12 +165,66 @@ const v = $('v'), list = $('list'), bar = $('bar'), fill = $('fill'), now = $('n
 const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 let T = null, buttons = [], last = -1, hideT, viewer = null, resume = false;
 const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>';
-const look = $('look'), pano = $('pano'), pv = $('pv');
-const views = n => n + (n > 1 ? ' views' : ' view');
-function openPano(i, j) {
-  const room = T.rooms[i]; if (!room.panos.length) return;
+const look = $('look'), pano = $('pano'), pv = $('pv'), gallery = $('gallery');
+const inGallery = () => document.body.classList.contains('gal');
+
+// ---- background music: Web Audio loop (the file carries 1 s of pre/post-roll so the loop point is seamless in every browser) ----
+const MUSIC = { src: 'audio/lounge.mp3', loop: [1, 156.676], vol: 0.42 };
+const mbtn = $('music');
+let actx = null, gain = null, msrc = null, mel = null, mbuf = null, playing = false, mtimer;
+const store = (k, val) => { try { if (val === undefined) return localStorage.getItem(k); localStorage.setItem(k, val); } catch (e) { return null; } };
+let wantMusic = store('mc-music') !== 'off';
+function setMusicUI() { mbtn.classList.toggle('on', playing); mbtn.setAttribute('aria-pressed', playing); mbtn.title = playing ? 'Turn music off' : 'Turn music on'; v.muted = playing; }
+function fadeTo(target, secs) {
+  if (gain) { const t = actx.currentTime; gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(gain.gain.value, t); gain.gain.linearRampToValueAtTime(target, t + secs); return; }
+  if (!mel) return;
+  clearInterval(mtimer); const from = mel.volume, steps = Math.max(1, secs * 20); let k = 0;
+  mtimer = setInterval(() => { k++; mel.volume = Math.max(0, Math.min(1, from + (target - from) * k / steps)); if (k >= steps) clearInterval(mtimer); }, 50);
+}
+function startMusic() {
+  playing = true; setMusicUI();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC && location.protocol !== 'file:') {
+    if (!actx) { actx = new AC(); gain = actx.createGain(); gain.gain.value = 0; gain.connect(actx.destination); }
+    actx.resume();                                    // must run inside the click/tap that started it
+    const go = () => {
+      if (!playing) return;
+      if (!msrc) { msrc = actx.createBufferSource(); msrc.buffer = mbuf; msrc.loop = true; [msrc.loopStart, msrc.loopEnd] = MUSIC.loop; msrc.connect(gain); msrc.start(0, MUSIC.loop[0]); }
+      fadeTo(MUSIC.vol, 2.5);
+    };
+    if (mbuf) go();
+    else fetch(MUSIC.src).then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => actx.decodeAudioData(a, ok, no))).then(b => { mbuf = b; go(); })
+      .catch(() => { gain = null; actx = null; startEl(); });
+  } else startEl();
+}
+function startEl() {
+  if (!mel) { mel = new Audio(MUSIC.src); mel.loop = true; mel.volume = 0; mel.currentTime = MUSIC.loop[0]; }
+  mel.play().then(() => fadeTo(MUSIC.vol, 2.5)).catch(() => { playing = false; setMusicUI(); });
+}
+function stopMusic(keepWish) {
+  playing = false; setMusicUI(); if (!keepWish) { wantMusic = false; store('mc-music', 'off'); }
+  fadeTo(0, 1.2);
+  clearTimeout(stopMusic.t); stopMusic.t = setTimeout(() => { if (playing) return; if (actx) actx.suspend(); if (mel) mel.pause(); }, 1300);
+}
+mbtn.onclick = () => { if (playing) stopMusic(); else { wantMusic = true; store('mc-music', 'on'); startMusic(); } };
+const firstTouch = e => {            // browsers only allow sound after the visitor interacts, so the music starts on their first click or key
+  if (e.target.closest && e.target.closest('#music')) return;
+  removeEventListener('click', firstTouch, true); removeEventListener('keydown', firstTouch, true);
+  if (wantMusic && !playing) startMusic();
+};
+addEventListener('click', firstTouch, true); addEventListener('keydown', firstTouch, true);
+let pausedByHide = false;                // fade out while the tab is in the background, back in on return
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (playing) { stopMusic(true); pausedByHide = true; } }
+  else if (pausedByHide) { pausedByHide = false; startMusic(); }
+});
+
+// ---- look-around viewer ----
+function openPano(room, j, label) {
+  if (!room.panos.length) return;
   resume = resume || !v.paused; v.pause();
-  $('pttl').innerHTML = `<b>${room.n}</b>${room.title}`;
+  $('pttl').innerHTML = (label ? `<small>${label}</small>` : '') + `<b>${room.n}</b>${room.title}`;
+  $('px').textContent = inGallery() ? 'Back to gallery' : 'Back to walkthrough';
   $('pstrip').innerHTML = room.panos.length > 1 ? room.panos.map((p, k) => `<button data-k="${k}"><img src="${p.thumb}" alt=""></button>`).join('') : '';
   $('pstrip').querySelectorAll('button').forEach(b => b.onclick = () => show(room, +b.dataset.k));
   pano.classList.add('open'); show(room, j || 0);
@@ -141,18 +242,37 @@ function show(room, j) {
     const img = pv.querySelector('img'); img.onload = () => { pv.scrollLeft = (img.width - pv.clientWidth) / 2; pv.scrollTop = (img.height - pv.clientHeight) / 2; };
     return;
   }
+  const fit = 2 * Math.atan(Math.tan(p.vaov * Math.PI / 360 * 0.92) * pv.clientWidth / pv.clientHeight) * 180 / Math.PI;  // tall phone screens: zoom in so the photo fills the height
   viewer = pannellum.viewer(pv, { type: 'equirectangular', panorama: p.src, autoLoad: true, haov: p.haov, vaov: p.vaov,
-    hfov: Math.min(100, p.haov * 0.75), minHfov: 35, maxHfov: Math.min(110, p.haov), showControls: true, showFullscreenCtrl: true,
+    hfov: Math.min(100, p.haov * 0.75, fit), minHfov: Math.min(35, fit), maxHfov: Math.min(110, p.haov, fit), showControls: true, showFullscreenCtrl: true,
     compass: false, mouseZoom: true, autoRotate: p.wide ? -2 : 0, autoRotateInactivityDelay: 4000, friction: 0.15 });
 }
-function closePano() { pano.classList.remove('open'); if (viewer) { viewer.destroy(); viewer = null; } pv.innerHTML = ''; if (resume) v.play().catch(() => {}); resume = false; }
+function closePano() { pano.classList.remove('open'); if (viewer) { viewer.destroy(); viewer = null; } pv.innerHTML = ''; if (resume && !inGallery()) v.play().catch(() => {}); resume = false; }
 $('px').onclick = closePano;
+
+// ---- gallery ----
+gallery.innerHTML = '<p class="gintro">Panoramic views from inside the clinic. Select any photo to look around the room.</p>' + TOURS.map((tour, k) =>
+  `<div class="gwing">${tour.label}<a href="#${tour.key}">Watch<span class="lw"> the walkthrough</span> &rarr;</a></div><div class="grid">` +
+  tour.rooms.flatMap((room, i) => room.panos.map((p, j) =>
+    `<button class="shot${p.wide ? ' wide' : ''}" data-k="${k}" data-i="${i}" data-j="${j}"><img src="${p.src.replace('.jpg', '_m.jpg')}" alt="${room.title}" loading="lazy">` +
+    `<span class="cap"><b>${room.n}</b>${room.title}${EYE}</span></button>`)).join('') + '</div>').join('');
+gallery.querySelectorAll('.shot').forEach(b => b.onclick = () => openPano(TOURS[+b.dataset.k].rooms[+b.dataset.i], +b.dataset.j, TOURS[+b.dataset.k].label));
+function showGallery() {
+  v.pause(); document.body.classList.add('gal');
+  [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === TOURS.length));
+  history.replaceState(null, '', '#gallery');
+}
+
+// ---- walkthrough player ----
 const dur = () => (isFinite(v.duration) && v.duration > 0) ? v.duration : T.total;
 const cur = t => { let i = 0; T.rooms.forEach((c, j) => { if (t >= c.t - 0.05) i = j; }); return i; };
 TOURS.forEach((tour, k) => {
   const b = document.createElement('button'); b.className = 'tab'; b.textContent = tour.label; b.onclick = () => load(k, 0, true); tabs.appendChild(b);
 });
+const gt = document.createElement('button'); gt.className = 'tab'; gt.textContent = 'Gallery'; gt.onclick = showGallery; tabs.appendChild(gt);
 function load(k, room, autoplay) {
+  document.body.classList.remove('gal');
+  if (T === TOURS[k]) { [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === k)); history.replaceState(null, '', '#' + T.key + (room ? '-' + (room + 1) : '')); go(room); return; }
   T = TOURS[k]; last = -1;
   [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === k));
   v.poster = room ? '' : T.poster; v.src = T.src;  // deep link to a room: show that room's frame, not the exterior poster
@@ -162,7 +282,7 @@ function load(k, room, autoplay) {
     const b = document.createElement('button'); b.className = 'room';
     b.innerHTML = `<img src="${c.thumb}" alt="" loading="lazy"><div><div class="n">${c.n}</div><div class="t">${c.title}</div><div class="d">${fmt(c.t)} · ${fmt(c.end - c.t)}</div>`
       + (c.panos.length ? `<span class="badge">${EYE}Look around${c.panos.length > 1 ? ' · ' + c.panos.length : ''}</span>` : '') + `</div>`;
-    b.onclick = e => { if (e.target.closest('.badge')) { go(i); openPano(i); } else go(i); }; list.appendChild(b); buttons.push(b);
+    b.onclick = e => { if (e.target.closest('.badge')) { go(i); openPano(T.rooms[i]); } else go(i); }; list.appendChild(b); buttons.push(b);
     const t = document.createElement('div'); t.className = 'tick'; t.style.left = (c.t / T.total * 100) + '%'; t.dataset.label = c.n + '  ' + c.title; bar.appendChild(t);
   });
   const n = TOURS[(k + 1) % TOURS.length];
@@ -179,10 +299,11 @@ function update() {
   fill.style.width = (t / dur() * 100) + '%'; time.textContent = fmt(t) + ' / ' + fmt(dur());
   if (i !== last && buttons[i]) {
     buttons.forEach((b, j) => b.classList.toggle('on', j === i));
-    if (getComputedStyle(list).maxHeight !== 'none') buttons[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' });  // only inside the desktop sidebar, never scroll the phone page
+    if (getComputedStyle(list).display !== 'flex') { if (getComputedStyle(list).maxHeight !== 'none') buttons[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    else list.scrollTo({ left: buttons[i].offsetLeft - 6, behavior: 'smooth' });  // phones: slide the room strip, never scroll the page
     now.innerHTML = `<b>${T.rooms[i].n}</b>${T.rooms[i].title}`; now.classList.add('show');
     const np = T.rooms[i].panos.length; look.innerHTML = np ? `${EYE}Look around this room` + (np > 1 ? ` · ${np}` : '') : ''; look.classList.toggle('show', !!np);
-    look.onclick = () => openPano(i);
+    look.onclick = () => openPano(T.rooms[i]);
     clearTimeout(hideT); hideT = setTimeout(() => now.classList.remove('show'), 3500); last = i;
   }
 }
@@ -194,17 +315,20 @@ $('prev').onclick = back; $('next').onclick = () => go(cur(v.currentTime) + 1);
 bar.onclick = e => { const r = bar.getBoundingClientRect(); v.currentTime = (e.clientX - r.left) / r.width * dur(); };
 document.addEventListener('keydown', e => {
   if (pano.classList.contains('open')) { if (e.key === 'Escape') closePano(); return; }
+  if (inGallery()) return;
   if (e.key === 'ArrowRight') { e.preventDefault(); go(cur(v.currentTime) + 1); }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
   else if (e.key === ' ' && e.target === document.body) { e.preventDefault(); v.paused ? v.play() : v.pause(); }
 });
 function fromHash(autoplay) {
+  if (location.hash === '#gallery') { if (!T) load(0, 0, false); showGallery(); return; }
   const m = location.hash.match(/^#(\w+)(?:-(\d+))?/), k = m ? Math.max(0, TOURS.findIndex(t => t.key === m[1])) : 0;
   const r = m && m[2] ? Math.min(TOURS[k].rooms.length, +m[2]) - 1 : 0;
-  if (T === TOURS[k]) go(r); else load(k, r, autoplay);
+  load(k, r, autoplay);
 }
 window.addEventListener('hashchange', () => fromHash(true));
 fromHash(false);
+setMusicUI();
 </script>
 </body>
 </html>
