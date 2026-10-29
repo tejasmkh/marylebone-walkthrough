@@ -72,6 +72,27 @@ aside { position:relative; background:var(--panel); border:1px solid var(--line)
 #gallery { display:none; padding:6px 32px 40px; }
 body.gal main { display:none; }
 body.gal #gallery { display:block; }
+#photos { display:none; padding:6px 32px 40px; }
+body.pho main { display:none; }
+body.pho #photos { display:block; }
+.gwing .cnt { color:var(--muted); font-size:10px; letter-spacing:.2em; }
+.pgrid { columns:4 260px; column-gap:12px; margin-bottom:38px; }
+.pic { display:block; width:100%; margin:0 0 12px; padding:0; border:0; background:#000; border-radius:5px; overflow:hidden; cursor:zoom-in; break-inside:avoid; }
+.pic img { width:100%; height:auto; display:block; transition:transform .8s ease, opacity .3s; }
+.pic:hover img { transform:scale(1.03); }
+#lb { position:fixed; inset:0; z-index:60; background:rgba(8,8,10,.97); display:none; flex-direction:column; }
+#lb.open { display:flex; }
+.lbh { display:flex; align-items:center; gap:16px; padding:18px 24px; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+.lbh b { color:var(--accent); font-weight:700; }
+.lbh .x { margin-left:auto; background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:3px; padding:10px 16px;
+       font:500 11px Montserrat, sans-serif; letter-spacing:.2em; text-transform:uppercase; cursor:pointer; }
+.lbh .x:hover { border-color:var(--accent); }
+.lbs { position:relative; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; padding:0 72px 28px; touch-action:pan-y; }
+.lbs img { max-width:100%; max-height:100%; object-fit:contain; border-radius:4px; user-select:none; -webkit-user-drag:none; }
+.lbn { position:absolute; top:50%; transform:translateY(-50%); width:48px; height:48px; border-radius:50%; border:1px solid var(--line); background:rgba(23,24,27,.8);
+       color:var(--text); font-size:20px; cursor:pointer; }
+.lbn:hover { border-color:var(--accent); color:var(--accent); }
+.lbn.p { left:14px; } .lbn.n { right:14px; }
 .gintro { font-size:12px; color:var(--muted); letter-spacing:.08em; line-height:1.6; margin-bottom:26px; }
 .gwing { display:flex; align-items:baseline; gap:18px; margin-bottom:14px; font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--accent); }
 .gwing a { margin-left:auto; color:var(--muted); font-size:10px; letter-spacing:.2em; text-decoration:none; }
@@ -120,7 +141,9 @@ body.gal #gallery { display:block; }
   .room img { width:100%; }
   .room .t { font-size:13px; }
   .badge { white-space:nowrap; font-size:9px; letter-spacing:.1em; padding:4px 8px; }
-  #gallery { padding:4px 16px 32px; }
+  #gallery, #photos { padding:4px 16px 32px; }
+  .pgrid { columns:2; column-gap:8px; } .pic { margin-bottom:8px; }
+  .lbs { padding:0 0 20px; } .lbn { display:none; } .lbh { padding:14px 16px; }
   .grid { grid-template-columns:repeat(2, 1fr); gap:10px; }
   .shot .cap { font-size:11px; padding:26px 9px 9px; gap:6px; }
   .shot .cap b { font-size:10px; letter-spacing:.12em; }
@@ -153,6 +176,11 @@ body.gal #gallery { display:block; }
   <aside id="list"></aside>
 </main>
 <section id="gallery"></section>
+<section id="photos"></section>
+<div id="lb" role="dialog" aria-modal="true">
+  <div class="lbh"><span id="lbc"></span><button class="x" id="lbx">Close</button></div>
+  <div class="lbs" id="lbs"><img id="lbi" alt=""><button class="lbn p" id="lbp" aria-label="Previous photo">&larr;</button><button class="lbn n" id="lbn" aria-label="Next photo">&rarr;</button></div>
+</div>
 <div id="pano" role="dialog" aria-modal="true">
   <div class="ph"><div><div class="ttl" id="pttl"></div><div class="sub">Drag to look around · scroll or pinch to zoom</div></div><button class="x" id="px">Back</button></div>
   <div id="pv"></div>
@@ -166,7 +194,7 @@ const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + '
 let T = null, buttons = [], last = -1, hideT, viewer = null, resume = false;
 const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>';
 const look = $('look'), pano = $('pano'), pv = $('pv'), gallery = $('gallery');
-const inGallery = () => document.body.classList.contains('gal');
+const inGallery = () => document.body.classList.contains('gal') || document.body.classList.contains('pho');
 
 // ---- background music: Web Audio loop (the file carries 1 s of pre/post-roll so the loop point is seamless in every browser) ----
 const MUSIC = { src: 'audio/lounge.mp3', loop: [1, 156.676], vol: 0.42 };
@@ -257,11 +285,36 @@ gallery.innerHTML = '<p class="gintro">Panoramic views from inside the clinic. S
     `<button class="shot${p.wide ? ' wide' : ''}" data-k="${k}" data-i="${i}" data-j="${j}"><img src="${p.src.replace('.jpg', '_m.jpg')}" alt="${room.title}" loading="lazy">` +
     `<span class="cap"><b>${room.n}</b>${room.title}${EYE}</span></button>`)).join('') + '</div>').join('');
 gallery.querySelectorAll('.shot').forEach(b => b.onclick = () => openPano(TOURS[+b.dataset.k].rooms[+b.dataset.i], +b.dataset.j, TOURS[+b.dataset.k].label));
-function showGallery() {
-  v.pause(); document.body.classList.add('gal');
-  [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === TOURS.length));
-  history.replaceState(null, '', '#gallery');
+function showView(cls) {            // 'gal' = panoramas, 'pho' = all photos
+  v.pause(); document.body.classList.remove('gal', 'pho'); document.body.classList.add(cls);
+  [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === TOURS.length + (cls === 'pho' ? 1 : 0)));
+  history.replaceState(null, '', cls === 'gal' ? '#gallery' : '#photos');
 }
+const showGallery = () => showView('gal');
+
+// ---- all photos: every still from the shoot, with a full-screen viewer ----
+const PHOTOS = [["0013",2560,1440],["0014",2560,1440],["0015",2560,1440],["0016",2560,1440],["0017",2560,1440],["0018",2560,1440],["0019",2560,1440],["0020",2560,1440],["0021",2560,1440],["0022",2560,1440],["0023",2560,1440],["0024",2560,1440],["0025",2560,1440],["0026",2560,1440],["0027",2560,1440],["0028",2560,1440],["0029",2560,1440],["0030",2560,1440],["0031",2560,1440],["0032",2560,1440],["0033",2560,1440],["0034",2560,1440],["0035",2560,1440],["0036",2560,1440],["0037",2560,1440],["0038",2560,1440],["0039",2560,1440],["0040",2560,1440],["0041",2560,1440],["0042",2560,1440],["0043",2560,1440],["0044",2560,1440],["0045",2560,1440],["0046",2560,1440],["0047",2560,1440],["0048",2560,1440],["0049",2560,1440],["0050",1440,2560],["0051",1440,2560],["0052",2540,2560],["0053",2555,2560],["0054",2556,2560],["0055",2545,2560],["0056",2560,2550],["0057",2552,2560],["0058",2560,2548],["0059",2556,2560],["0060",2538,2560],["0061",2538,2560],["0062",2538,2560],["0063",2541,2560],["0064",2560,2560],["0065",2560,1440],["0066",2560,1440],["0067",2560,1440],["0068",2560,1440],["0069",2560,1440],["0070",2560,1440],["0071",2541,2560],["0072",2543,2560],["0073",2547,2560],["0074",2555,2560],["0075",2550,2560],["0076",2552,2560],["0077",2560,1440],["0078",2560,1440],["0079",2560,1440],["0080",1440,2560],["0081",1440,2560],["0082",1440,2560],["0083",2547,2560],["0084",2560,2556],["0086",2554,2560],["0087",2560,1440],["0088",2560,1440],["0089",2560,1440],["0090",2560,1440],["0091",2560,1440],["0092",2560,1440],["0093",2560,1440],["0094",2540,2560],["0095",2560,2555],["0096",2560,1005],["0097",2547,2560],["0098",2531,2560],["0099",2560,1440],["0100",2560,1440],["0101",2528,2560],["0102",2560,1440],["0103",2556,2560],["0104",2560,2557],["0105",2549,2560],["0106",2552,2560],["0107",2551,2560],["0108",2560,1440],["0109",2560,1440],["0110",2560,1440],["0111",2560,1440],["0112",2560,1440],["0113",2560,1440],["0114",2560,1440],["0115",2560,1440],["0116",2560,1440],["0117",2560,1440],["0118",2560,1440],["0119",1440,2560],["0120",1440,2560],["0121",1440,2560],["0122",1440,2560],["0123",2547,2560],["0124",2560,2552],["0125",2546,2560]];  // [file number, width, height]; 0013-0075 medical wing, 0076+ cosmetic wing
+const lb = $('lb'), lbi = $('lbi');
+let li = 0;
+$('photos').innerHTML = '<p class="gintro">Every photo from the shoot. Select any photo to view it full screen.</p>' + TOURS.map((tour, k) => {
+  const set = PHOTOS.map((p, i) => [p, i]).filter(([p]) => (+p[0] <= 75 ? 0 : 1) === k);
+  return `<div class="gwing">${tour.label}<span class="cnt">${set.length} photos</span></div><div class="pgrid">` +
+    set.map(([p, i]) => `<button class="pic" data-i="${i}"><img src="photos/${p[0]}_t.jpg" width="${p[1]}" height="${p[2]}" alt="${tour.label}" loading="lazy"></button>`).join('') + '</div>';
+}).join('');
+$('photos').querySelectorAll('.pic').forEach(b => b.onclick = () => openPhoto(+b.dataset.i));
+function openPhoto(i) {
+  li = (i + PHOTOS.length) % PHOTOS.length; const p = PHOTOS[li];
+  lbi.src = `photos/${p[0]}_t.jpg`; const full = new Image(); full.onload = () => { if (PHOTOS[li] === p) lbi.src = full.src; }; full.src = `photos/${p[0]}.jpg`;
+  $('lbc').innerHTML = `<b>${+p[0] <= 75 ? TOURS[0].label : TOURS[1].label}</b> &nbsp; ${li + 1} / ${PHOTOS.length}`;
+  lb.classList.add('open');
+  [li + 1, li - 1].forEach(j => { const q = PHOTOS[(j + PHOTOS.length) % PHOTOS.length]; new Image().src = `photos/${q[0]}.jpg`; });  // preload neighbours
+}
+const closePhoto = () => lb.classList.remove('open');
+$('lbx').onclick = closePhoto; $('lbp').onclick = () => openPhoto(li - 1); $('lbn').onclick = () => openPhoto(li + 1);
+$('lbs').onclick = e => { if (e.target.id === 'lbs') closePhoto(); };
+let sx = null;
+$('lbs').addEventListener('pointerdown', e => sx = e.clientX);
+$('lbs').addEventListener('pointerup', e => { if (sx !== null && Math.abs(e.clientX - sx) > 50) openPhoto(li + (e.clientX < sx ? 1 : -1)); sx = null; });
 
 // ---- walkthrough player ----
 const dur = () => (isFinite(v.duration) && v.duration > 0) ? v.duration : T.total;
@@ -270,8 +323,9 @@ TOURS.forEach((tour, k) => {
   const b = document.createElement('button'); b.className = 'tab'; b.textContent = tour.label; b.onclick = () => load(k, 0, true); tabs.appendChild(b);
 });
 const gt = document.createElement('button'); gt.className = 'tab'; gt.textContent = 'Gallery'; gt.onclick = showGallery; tabs.appendChild(gt);
+const pt = document.createElement('button'); pt.className = 'tab'; pt.textContent = 'All Photos'; pt.onclick = () => showView('pho'); tabs.appendChild(pt);
 function load(k, room, autoplay) {
-  document.body.classList.remove('gal');
+  document.body.classList.remove('gal', 'pho');
   if (T === TOURS[k]) { [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === k)); history.replaceState(null, '', '#' + T.key + (room ? '-' + (room + 1) : '')); go(room); return; }
   T = TOURS[k]; last = -1;
   [...tabs.children].forEach((b, j) => b.classList.toggle('on', j === k));
@@ -314,6 +368,7 @@ const back = () => { const i = cur(v.currentTime); go(v.currentTime - T.rooms[i]
 $('prev').onclick = back; $('next').onclick = () => go(cur(v.currentTime) + 1);
 bar.onclick = e => { const r = bar.getBoundingClientRect(); v.currentTime = (e.clientX - r.left) / r.width * dur(); };
 document.addEventListener('keydown', e => {
+  if (lb.classList.contains('open')) { if (e.key === 'Escape') closePhoto(); else if (e.key === 'ArrowRight') openPhoto(li + 1); else if (e.key === 'ArrowLeft') openPhoto(li - 1); return; }
   if (pano.classList.contains('open')) { if (e.key === 'Escape') closePano(); return; }
   if (inGallery()) return;
   if (e.key === 'ArrowRight') { e.preventDefault(); go(cur(v.currentTime) + 1); }
@@ -322,6 +377,7 @@ document.addEventListener('keydown', e => {
 });
 function fromHash(autoplay) {
   if (location.hash === '#gallery') { if (!T) load(0, 0, false); showGallery(); return; }
+  if (location.hash === '#photos') { if (!T) load(0, 0, false); showView('pho'); return; }
   const m = location.hash.match(/^#(\w+)(?:-(\d+))?/), k = m ? Math.max(0, TOURS.findIndex(t => t.key === m[1])) : 0;
   const r = m && m[2] ? Math.min(TOURS[k].rooms.length, +m[2]) - 1 : 0;
   load(k, r, autoplay);
